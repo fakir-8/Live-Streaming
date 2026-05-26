@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireStream | Live Pro-Mesh</title>
+    <title>FireStream | High-Performance Native Matrix</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,39 +13,35 @@
     
     <style>
         :root {
-            --md-sys-color-surface: rgba(20, 20, 24, 0.7);
+            --md-sys-color-surface: rgba(20, 20, 24, 0.75);
             --md-sys-color-on-surface: #F3F4F6;
         }
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background-color: #050505;
+            background-color: #040406;
             color: var(--md-sys-color-on-surface);
             overflow-x: hidden;
             margin: 0;
             min-height: 100vh;
         }
-        
         .mesh-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1;
             background: 
-                radial-gradient(circle at 15% 50%, rgba(220, 38, 38, 0.15), transparent 40%),
-                radial-gradient(circle at 85% 30%, rgba(234, 88, 12, 0.2), transparent 45%),
-                radial-gradient(circle at 50% 80%, rgba(147, 51, 234, 0.1), transparent 50%);
-            filter: blur(60px);
+                radial-gradient(circle at 10% 30%, rgba(249, 115, 22, 0.12), transparent 45%),
+                radial-gradient(circle at 90% 70%, rgba(220, 38, 38, 0.1), transparent 45%);
+            filter: blur(50px);
         }
-
         .glass-panel {
             background: var(--md-sys-color-surface);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.8);
         }
-
         .ratio-landscape { aspect-ratio: 16 / 9; }
-        .ratio-portrait { aspect-ratio: 9 / 16; max-height: 75vh; }
+        .ratio-portrait { aspect-ratio: 9 / 16; max-height: 70vh; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-4">
@@ -61,56 +56,53 @@
                 <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-600 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 </div>
-                <h1 class="text-3xl font-bold tracking-tight text-white">FireStream</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-white">FireStream <span class="text-orange-500 text-lg font-normal">Native Matrix</span></h1>
             </div>
-            <div id="status-chip" class="px-4 py-1.5 text-sm font-semibold bg-zinc-800/50 text-zinc-400 rounded-full border border-zinc-700/50 ready-state">
-                System Idle
+            <div id="status-chip" class="px-4 py-1.5 text-xs font-bold tracking-wider uppercase bg-zinc-800/60 text-zinc-400 rounded-full border border-zinc-700/50">
+                System Offline
             </div>
         </div>
 
         <div id="setup-panel" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-3">
-                    <label class="text-sm font-semibold text-zinc-300">Stream Passcode</label>
-                    <input type="text" id="passcode" placeholder="Enter secure key..." class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-400">Secure Passcode Node</label>
+                    <input type="text" id="passcode" placeholder="Enter custom channel node..." class="w-full bg-black/40 border border-zinc-800 rounded-2xl px-5 py-4 text-base text-white focus:outline-none focus:border-orange-500 transition-colors">
                 </div>
-                
                 <div class="space-y-3">
-                    <label class="text-sm font-semibold text-zinc-300">Format</label>
-                    <select id="ratio-select" class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 appearance-none">
-                        <option value="landscape">Cinematic (16:9)</option>
-                        <option value="portrait">Mobile Portrait (9:16)</option>
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-400">Hardware Aspect Bounds</label>
+                    <select id="ratio-select" class="w-full bg-black/40 border border-zinc-800 rounded-2xl px-5 py-4 text-base text-white focus:outline-none focus:border-orange-500 appearance-none">
+                        <option value="landscape">Horizontal Cinematic (16:9)</option>
+                        <option value="portrait">Vertical Mobile (9:16)</option>
                     </select>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <button onclick="bootSystem('broadcaster')" class="bg-white text-black font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] shadow-xl">
-                    Start Broadcast
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <button onclick="bootMatrix('broadcaster')" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-xl shadow-orange-600/10">
+                    Deploy Broadcaster Core
                 </button>
-                <button onclick="bootSystem('viewer')" class="bg-zinc-800/50 hover:bg-zinc-700/50 text-white font-bold py-4 px-6 rounded-2xl transition-all border border-zinc-600">
-                    Join Stream
+                <button onclick="bootMatrix('viewer')" class="bg-zinc-800/60 hover:bg-zinc-700/60 text-white font-bold py-4 px-6 rounded-2xl transition-all border border-zinc-700">
+                    Connect Remote Viewer
                 </button>
             </div>
         </div>
 
         <div id="player-panel" class="hidden flex-col items-center w-full">
-            <div id="video-frame" class="w-full relative rounded-2xl overflow-hidden bg-black/80 border border-zinc-800 shadow-2xl transition-all duration-700 flex items-center justify-center ratio-landscape">
+            <div id="video-frame" class="w-full relative rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-900 shadow-2xl flex items-center justify-center ratio-landscape transition-all duration-500">
                 
-                <video id="local-preview" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-                
-                <div id="viewer-mount" class="absolute inset-0 w-full h-full z-10"></div>
+                <video id="stream-display" autoplay playsinline class="w-full h-full object-cover hidden"></video>
 
-                <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md z-20">
-                    <div class="w-12 h-12 border-4 border-zinc-600 border-t-orange-500 rounded-full animate-spin mb-6"></div>
-                    <p id="ui-state-text" class="text-lg font-medium text-white tracking-wide">Connecting to Firebase...</p>
-                    <p id="ui-sub-text" class="text-sm text-zinc-400 mt-2 font-mono">Initializing regional sockets</p>
+                <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 z-20">
+                    <div class="w-10 h-10 border-4 border-zinc-800 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+                    <p id="ui-state-text" class="text-sm font-semibold text-zinc-300">Synchronizing pipeline loops...</p>
+                    <p id="ui-sub-text" class="text-xs text-zinc-500 mt-1.5 font-mono">Connecting to regional Singapore database</p>
                 </div>
             </div>
             
-            <div class="w-full mt-4 flex justify-between items-center text-[11px] text-zinc-500 font-mono bg-zinc-950 p-3 rounded-xl border border-white/5">
-                <span id="tel-swarm">Swarm Connection: Connecting</span>
-                <span id="tel-rate">Buffer Sequence: 0 bytes</span>
+            <div class="w-full mt-4 flex justify-between items-center text-[11px] text-zinc-500 font-mono bg-zinc-950 p-3.5 rounded-xl border border-white/5">
+                <span id="tel-mode">Identity: Unassigned</span>
+                <span id="tel-io">Stream Throughput: 0 KB/s</span>
             </div>
         </div>
     </div>
@@ -129,47 +121,37 @@
             appId: "1:732242608209:web:d38008e8a4453a6d16b870"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        
-        // Hardened, high-availability public tracker arrays
-        const MESH_TRACKERS = [
-            'wss://tracker.openwebtorrent.com',
-            'wss://tracker.btorrent.xyz',
-            'wss://tracker.webtorrent.dev',
-            'wss://tracker.fastcast.nz'
-        ];
-        
-        const client = new WebTorrent();
+        const db = getDatabase(initializeApp(firebaseConfig));
 
-        // DOM Targets
+        // Core Constants
+        const CODEC_MATRIX = 'video/webm; codecs="vp8, opus"';
+
+        // DOM Framework Map
         const setupPanel = document.getElementById('setup-panel');
         const playerPanel = document.getElementById('player-panel');
         const videoFrame = document.getElementById('video-frame');
-        const localPreview = document.getElementById('local-preview');
-        const viewerMount = document.getElementById('viewer-mount');
+        const streamDisplay = document.getElementById('stream-display');
         const loadingOverlay = document.getElementById('loading-overlay');
         const uiStateText = document.getElementById('ui-state-text');
         const uiSubText = document.getElementById('ui-sub-text');
         const statusChip = document.getElementById('status-chip');
         const toastAlert = document.getElementById('toast-alert');
-        const telSwarm = document.getElementById('tel-swarm');
-        const telRate = document.getElementById('tel-rate');
+        const telMode = document.getElementById('tel-mode');
+        const telIo = document.getElementById('tel-io');
 
-        function setUIState(main, sub, chipState = 'loading') {
+        function setEngineUI(main, sub, badgeStyle = 'processing') {
             uiStateText.innerText = main;
             uiSubText.innerText = sub;
-            
-            if (chipState === 'live') {
-                statusChip.innerHTML = '<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>LIVE STREAM</span>';
-                statusChip.className = 'px-4 py-1.5 text-sm font-bold bg-red-500/10 text-red-500 rounded-full border border-red-500/20';
-            } else if (chipState === 'viewing') {
-                statusChip.innerHTML = '<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span>SYNCED</span>';
-                statusChip.className = 'px-4 py-1.5 text-sm font-bold bg-green-500/10 text-green-400 rounded-full border border-green-500/20';
+            if (badgeStyle === 'live') {
+                statusChip.innerText = "LIVE BROADCAST";
+                statusChip.className = "px-4 py-1.5 text-xs font-bold tracking-wider bg-red-500/10 text-red-500 rounded-full border border-red-500/20";
+            } else if (badgeStyle === 'sync') {
+                statusChip.innerText = "STREAM ATTACHED";
+                statusChip.className = "px-4 py-1.5 text-xs font-bold tracking-wider bg-green-500/10 text-green-400 rounded-full border border-green-500/20";
             }
         }
 
-        function triggerError(msg) {
+        function triggerCrash(msg) {
             toastAlert.innerText = msg;
             toastAlert.classList.remove('-translate-y-full');
             setTimeout(() => toastAlert.classList.add('-translate-y-full'), 6000);
@@ -177,96 +159,134 @@
             playerPanel.classList.add('hidden');
         }
 
-        function checkCodecs() {
-            const codecs = ['video/webm;codecs=vp8', 'video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
-            return codecs.find(type => MediaRecorder.isTypeSupported(type)) || '';
+        // Helper function converting base64 arrays to usable binary chunks
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
         }
 
-        window.bootSystem = async (role) => {
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        window.bootMatrix = async (role) => {
             const rawRoom = document.getElementById('passcode').value.trim();
-            if (!rawRoom) return triggerError("Passcode required.");
-            const roomCode = rawRoom.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-            const ratioFormat = document.getElementById('ratio-select').value;
+            if (!rawRoom) return triggerCrash("Security reference node address key missing.");
+            const targetChannel = rawRoom.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            const formatMode = document.getElementById('ratio-select').value;
 
             setupPanel.classList.add('hidden');
             playerPanel.classList.remove('hidden');
             playerPanel.classList.add('flex');
-            
-            const roomRef = ref(db, `firestream/${roomCode}`);
+            telMode.innerText = `Identity: ${role.toUpperCase()}`;
+
+            if (formatMode === 'portrait') {
+                videoFrame.classList.remove('ratio-landscape');
+                videoFrame.classList.add('ratio-portrait');
+            }
+
+            const dataPipelineRef = ref(db, `nativeMatrix/${targetChannel}`);
 
             try {
                 if (role === 'broadcaster') {
-                    setUIState("Authenticating Room...", "Checking active node states...");
+                    setEngineUI("Allocating Channels...", "Claiming database runtime sequence fields...");
                     
-                    const snapshot = await get(roomRef);
-                    if (snapshot.exists() && snapshot.val().active) {
-                        return triggerError("Room collision! Broadcast session already running.");
+                    const checkState = await get(dataPipelineRef);
+                    if (checkState.exists() && checkState.val().active) {
+                        return triggerCrash("Operational Collision: Broadcaster node active on target channel.");
                     }
 
-                    if (ratioFormat === 'portrait') {
-                        videoFrame.classList.remove('ratio-landscape');
-                        videoFrame.classList.add('ratio-portrait');
-                    }
+                    // Setup stream channel parameters
+                    await set(dataPipelineRef, { active: true, format: formatMode, chunk: "", index: 0 });
+                    onDisconnect(dataPipelineRef).remove();
 
-                    setUIState("Acquiring Hardware...", "Allocating input matrices...");
-                    await set(roomRef, { active: true, format: ratioFormat, hash: null, timestamp: Date.now() });
-                    onDisconnect(roomRef).remove();
-
+                    setEngineUI("Initializing Camera...", "Requesting continuous stream arrays...");
                     const constraints = {
                         audio: true,
-                        video: ratioFormat === 'portrait' 
+                        video: formatMode === 'portrait'
                             ? { width: { ideal: 480 }, height: { ideal: 854 }, facingMode: 'user' }
                             : { width: { ideal: 854 }, height: { ideal: 480 }, facingMode: 'user' }
                     };
 
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    localPreview.srcObject = stream;
-                    localPreview.classList.remove('hidden');
+                    const captureStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    streamDisplay.srcObject = captureStream;
+                    streamDisplay.muted = true; // Essential loop prevention rule
+                    streamDisplay.classList.remove('hidden');
                     
-                    const targetMime = checkCodecs();
-                    setUIState("Seeding Swarm Pipeline...", "Emitting chunk matrices...", "live");
+                    setEngineUI("Encoding Active Matrix...", "Broadcasting structural arrays...", "live");
                     loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
 
-                    const recorder = new MediaRecorder(stream, { mimeType: targetMime });
+                    const options = { mimeType: CODEC_MATRIX, videoBitsPerSecond: 400000 }; // Constrained allocation limits
+                    const internalRecorder = new MediaRecorder(captureStream, options);
                     
-                    recorder.ondataavailable = async (e) => {
-                        if (e.data && e.data.size > 0) {
-                            const chunkFile = new File([e.data], `live-${Date.now()}.webm`, { type: targetMime });
-                            
-                            // Aggressive memory leak prevention
-                            if (client.torrents.length > 0) {
-                                client.torrents.forEach(t => client.remove(t.infoHash));
-                            }
+                    let packetCounter = 0;
+                    internalRecorder.ondataavailable = async (event) => {
+                        if (event.data && event.data.size > 0) {
+                            const bufferArray = await event.data.arrayBuffer();
+                            const encodedPayload = arrayBufferToBase64(bufferArray);
+                            packetCounter++;
 
-                            client.seed(chunkFile, { announce: MESH_TRACKERS }, (torrent) => {
-                                set(roomRef, { 
-                                    active: true, 
-                                    format: ratioFormat,
-                                    hash: torrent.infoHash, 
-                                    timestamp: Date.now() 
-                                });
-                                telSwarm.innerText = `Active Peers: ${torrent.numPeers}`;
-                                telRate.innerText = `Seeding Block: ${e.data.size} bytes`;
+                            set(dataPipelineRef, {
+                                active: true,
+                                format: formatMode,
+                                chunk: encodedPayload,
+                                index: packetCounter,
+                                timestamp: Date.now()
                             });
+                            telIo.innerText = `Stream Throughput: ~${Math.round(event.data.size / 1024)} KB/s`;
                         }
                     };
-                    recorder.start(4000); // Expanded chunk cycle for stable replication handshakes
+                    // Push binary buffers out at small, granular, responsive 1000ms cycles
+                    internalRecorder.start(1000);
 
                 } else if (role === 'viewer') {
-                    setUIState("Intercepting Singularity...", "Polling database signatures...");
-                    let lastHash = null;
+                    setEngineUI("Constructing Node Pipeline...", "Assembling client MediaSource elements...");
+                    
+                    const dynamicMediaSource = new MediaSource();
+                    streamDisplay.src = URL.createObjectURL(dynamicMediaSource);
+                    streamDisplay.muted = true; // Required by browsers to authorize background execution
+                    
+                    let activeSourceBuffer = null;
+                    let arrayQueue = [];
+                    let expectedIndex = 0;
 
-                    onValue(roomRef, (snapshot) => {
-                        const data = snapshot.val();
-                        
-                        if (!data || !data.active) {
+                    dynamicMediaSource.addEventListener('sourceopen', () => {
+                        activeSourceBuffer = dynamicMediaSource.addSourceBuffer(CODEC_MATRIX);
+                        activeSourceBuffer.mode = 'sequence'; // Forces strict continuous playback sorting ordered by arrival
+
+                        activeSourceBuffer.addEventListener('updateend', () => {
+                            if (arrayQueue.length > 0 && !activeSourceBuffer.updating) {
+                                try {
+                                    activeSourceBuffer.appendBuffer(arrayQueue.shift());
+                                } catch (e) {
+                                    console.warn("Buffer execution adjustment caught:", e);
+                                }
+                            }
+                        });
+                    });
+
+                    // Start monitoring updates on the Singapore server
+                    onValue(dataPipelineRef, (snapshot) => {
+                        const payload = snapshot.val();
+                        if (!payload || !payload.active) {
                             loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                            setUIState("Stream Offline", "Awaiting active broadcast initialization...");
-                            viewerMount.innerHTML = '';
+                            setEngineUI("Stream Offline", "Waiting for broadcast loop connection initialization...");
+                            streamDisplay.classList.add('hidden');
                             return;
                         }
 
-                        if (data.format === 'portrait') {
+                        if (payload.format === 'portrait') {
                             videoFrame.classList.remove('ratio-landscape');
                             videoFrame.classList.add('ratio-portrait');
                         } else {
@@ -274,48 +294,33 @@
                             videoFrame.classList.add('ratio-landscape');
                         }
 
-                        if (data.hash && data.hash !== lastHash) {
-                            lastHash = data.hash;
-                            setUIState("Routing Data Matrix...", "Handshaking with P2P swarm...", "viewing");
+                        if (payload.chunk && payload.index !== expectedIndex) {
+                            expectedIndex = payload.index;
                             
-                            // Garbage cleanup matching the broadcaster's lifecycle
-                            if (client.torrents.length > 1) {
-                                client.torrents.slice(0, -1).forEach(t => client.remove(t.infoHash));
+                            const structuralRawArray = base64ToArrayBuffer(payload.chunk);
+                            telIo.innerText = `Ingesting Buffer Sequence: #${payload.index} (${Math.round(structuralRawArray.byteLength / 1024)} KB)`;
+
+                            if (activeSourceBuffer && !activeSourceBuffer.updating && arrayQueue.length === 0) {
+                                try {
+                                    activeSourceBuffer.appendBuffer(structuralRawArray);
+                                    if (streamDisplay.paused) {
+                                        streamDisplay.classList.remove('hidden');
+                                        streamDisplay.play().catch(() => {});
+                                        setEngineUI("Attached", "Displaying stream matrix directly", "sync");
+                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                                    }
+                                } catch (err) {
+                                    // Soft catch for out-of-order sequence allocations
+                                    arrayQueue.push(structuralRawArray);
+                                }
+                            } else {
+                                arrayQueue.push(structuralRawArray);
                             }
-
-                            if (client.get(data.hash)) return;
-
-                            client.add(data.hash, { announce: MESH_TRACKERS }, (torrent) => {
-                                telSwarm.innerText = `Connected Swarm Nodes: ${torrent.numPeers}`;
-                                
-                                torrent.on('download', (bytes) => {
-                                    telRate.innerText = `Buffered: ${torrent.downloaded} / ${torrent.length} bytes`;
-                                    // Direct hot-bypass: if we downloaded metadata, push element painting
-                                    if(torrent.downloaded > (torrent.length * 0.3)) {
-                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
-                                    }
-                                });
-
-                                const videoFile = torrent.files[0];
-                                if (!videoFile) return;
-
-                                // Proactive fallback renderer injection
-                                videoFile.renderTo(viewerMount, { autoplay: true, muted: true, controls: true }, (err, elem) => {
-                                    if (!err && elem) {
-                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
-                                        elem.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
-                                        elem.setAttribute('playsinline', 'true');
-                                        
-                                        const oldNodes = viewerMount.querySelectorAll('video');
-                                        if (oldNodes.length > 1) oldNodes[0].remove();
-                                    }
-                                });
-                            });
                         }
                     });
                 }
-            } catch (error) {
-                triggerError(error.message);
+            } catch (fault) {
+                triggerCrash(fault.message);
             }
         };
     </script>
