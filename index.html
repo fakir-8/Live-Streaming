@@ -64,7 +64,7 @@
         </div>
 
         <div id="setup-panel" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="space-y-3">
                     <label class="text-xs font-bold uppercase tracking-wider text-zinc-400">Secure Passcode Node</label>
                     <input type="text" id="passcode" placeholder="Enter custom channel node..." class="w-full bg-black/40 border border-zinc-800 rounded-2xl px-5 py-4 text-base text-white focus:outline-none focus:border-orange-500 transition-colors">
@@ -74,6 +74,13 @@
                     <select id="ratio-select" class="w-full bg-black/40 border border-zinc-800 rounded-2xl px-5 py-4 text-base text-white focus:outline-none focus:border-orange-500 appearance-none">
                         <option value="landscape">Horizontal Cinematic (16:9)</option>
                         <option value="portrait">Vertical Mobile (9:16)</option>
+                    </select>
+                </div>
+                <div class="space-y-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-400">Camera Selector</label>
+                    <select id="camera-select" class="w-full bg-black/40 border border-zinc-800 rounded-2xl px-5 py-4 text-base text-white focus:outline-none focus:border-orange-500 appearance-none">
+                        <option value="user">Front Camera (Selfie)</option>
+                        <option value="environment">Back Camera (Main)</option>
                     </select>
                 </div>
             </div>
@@ -91,12 +98,16 @@
         <div id="player-panel" class="hidden flex-col items-center w-full">
             <div id="video-frame" class="w-full relative rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-900 shadow-2xl flex items-center justify-center ratio-landscape transition-all duration-500">
                 
-                <video id="stream-display" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+                <video id="stream-display" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover hidden"></video>
 
                 <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 z-20">
                     <div class="w-10 h-10 border-4 border-zinc-800 border-t-orange-500 rounded-full animate-spin mb-4"></div>
                     <p id="ui-state-text" class="text-sm font-semibold text-zinc-300">Synchronizing pipeline loops...</p>
                     <p id="ui-sub-text" class="text-xs text-zinc-500 mt-1.5 font-mono">Connecting to regional Singapore database</p>
+                    
+                    <button id="force-unlock-btn" onclick="manualPlayUnlock()" class="hidden mt-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs px-4 py-2 rounded-xl transition-all font-mono">
+                        Tap To Force Paint Canvas
+                    </button>
                 </div>
             </div>
             
@@ -138,6 +149,7 @@
         const toastAlert = document.getElementById('toast-alert');
         const telMode = document.getElementById('tel-mode');
         const telIo = document.getElementById('tel-io');
+        const forceUnlockBtn = document.getElementById('force-unlock-btn');
 
         function setEngineUI(main, sub, badgeStyle = 'processing') {
             uiStateText.innerText = main;
@@ -159,7 +171,6 @@
             playerPanel.classList.add('hidden');
         }
 
-        // Helper function converting base64 arrays to usable binary chunks
         function arrayBufferToBase64(buffer) {
             let binary = '';
             const bytes = new Uint8Array(buffer);
@@ -180,11 +191,18 @@
             return bytes.buffer;
         }
 
+        window.manualPlayUnlock = () => {
+            streamDisplay.play().then(() => {
+                loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+            }).catch(e => console.error("Forced play failed:", e));
+        };
+
         window.bootMatrix = async (role) => {
             const rawRoom = document.getElementById('passcode').value.trim();
             if (!rawRoom) return triggerCrash("Security reference node address key missing.");
             const targetChannel = rawRoom.toLowerCase().replace(/[^a-z0-9-]/g, '-');
             const formatMode = document.getElementById('ratio-select').value;
+            const selectedCamera = document.getElementById('camera-select').value;
 
             setupPanel.classList.add('hidden');
             playerPanel.classList.remove('hidden');
@@ -207,7 +225,6 @@
                         return triggerCrash("Operational Collision: Broadcaster node active on target channel.");
                     }
 
-                    // Setup stream channel parameters
                     await set(dataPipelineRef, { active: true, format: formatMode, chunk: "", index: 0 });
                     onDisconnect(dataPipelineRef).remove();
 
@@ -215,19 +232,19 @@
                     const constraints = {
                         audio: true,
                         video: formatMode === 'portrait'
-                            ? { width: { ideal: 480 }, height: { ideal: 854 }, facingMode: 'user' }
-                            : { width: { ideal: 854 }, height: { ideal: 480 }, facingMode: 'user' }
+                            ? { width: { ideal: 480 }, height: { ideal: 854 }, facingMode: { exact: selectedCamera } }
+                            : { width: { ideal: 854 }, height: { ideal: 480 }, facingMode: { exact: selectedCamera } }
                     };
 
                     const captureStream = await navigator.mediaDevices.getUserMedia(constraints);
                     streamDisplay.srcObject = captureStream;
-                    streamDisplay.muted = true; // Essential loop prevention rule
+                    streamDisplay.muted = true; 
                     streamDisplay.classList.remove('hidden');
                     
                     setEngineUI("Encoding Active Matrix...", "Broadcasting structural arrays...", "live");
                     loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
 
-                    const options = { mimeType: CODEC_MATRIX, videoBitsPerSecond: 400000 }; // Constrained allocation limits
+                    const options = { mimeType: CODEC_MATRIX, videoBitsPerSecond: 400000 }; 
                     const internalRecorder = new MediaRecorder(captureStream, options);
                     
                     let packetCounter = 0;
@@ -247,7 +264,6 @@
                             telIo.innerText = `Stream Throughput: ~${Math.round(event.data.size / 1024)} KB/s`;
                         }
                     };
-                    // Push binary buffers out at small, granular, responsive 1000ms cycles
                     internalRecorder.start(1000);
 
                 } else if (role === 'viewer') {
@@ -255,7 +271,11 @@
                     
                     const dynamicMediaSource = new MediaSource();
                     streamDisplay.src = URL.createObjectURL(dynamicMediaSource);
-                    streamDisplay.muted = true; // Required by browsers to authorize background execution
+                    
+                    // Critical absolute enforcement variables
+                    streamDisplay.muted = true;
+                    streamDisplay.setAttribute('playsinline', 'true');
+                    streamDisplay.setAttribute('webkit-playsinline', 'true');
                     
                     let activeSourceBuffer = null;
                     let arrayQueue = [];
@@ -263,7 +283,7 @@
 
                     dynamicMediaSource.addEventListener('sourceopen', () => {
                         activeSourceBuffer = dynamicMediaSource.addSourceBuffer(CODEC_MATRIX);
-                        activeSourceBuffer.mode = 'sequence'; // Forces strict continuous playback sorting ordered by arrival
+                        activeSourceBuffer.mode = 'sequence';
 
                         activeSourceBuffer.addEventListener('updateend', () => {
                             if (arrayQueue.length > 0 && !activeSourceBuffer.updating) {
@@ -276,7 +296,6 @@
                         });
                     });
 
-                    // Start monitoring updates on the Singapore server
                     onValue(dataPipelineRef, (snapshot) => {
                         const payload = snapshot.val();
                         if (!payload || !payload.active) {
@@ -303,14 +322,23 @@
                             if (activeSourceBuffer && !activeSourceBuffer.updating && arrayQueue.length === 0) {
                                 try {
                                     activeSourceBuffer.appendBuffer(structuralRawArray);
+                                    
                                     if (streamDisplay.paused) {
                                         streamDisplay.classList.remove('hidden');
-                                        streamDisplay.play().catch(() => {});
-                                        setEngineUI("Attached", "Displaying stream matrix directly", "sync");
-                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                                        
+                                        // Attempt to auto play
+                                        streamDisplay.play()
+                                        .then(() => {
+                                            setEngineUI("Attached", "Displaying stream matrix directly", "sync");
+                                            loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                                        })
+                                        .catch(() => {
+                                            // Fallback triggered: The browser is actively blocking audio/video auto playback context
+                                            setEngineUI("Autoplay Blocked", "Please interact with the display button below to unfreeze video track matrix.", "sync");
+                                            forceUnlockBtn.classList.remove('hidden');
+                                        });
                                     }
                                 } catch (err) {
-                                    // Soft catch for out-of-order sequence allocations
                                     arrayQueue.push(structuralRawArray);
                                 }
                             } else {
