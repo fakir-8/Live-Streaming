@@ -3,62 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuminaMesh | Firebase v12 P2P</title>
+    <title>Robust Mesh Streamer</title>
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center p-4">
-
-    <div class="w-full max-w-xl bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-2xl">
-        <h1 class="text-2xl font-bold mb-4">LuminaMesh Node</h1>
-        <input type="text" id="passcode" placeholder="Stream Key" class="w-full bg-black p-3 rounded-xl mb-4 border border-gray-700">
-        <div class="grid grid-cols-2 gap-4">
-            <button onclick="boot('broadcaster')" class="bg-indigo-600 p-3 rounded-xl">Broadcaster</button>
-            <button onclick="boot('viewer')" class="bg-gray-700 p-3 rounded-xl">Viewer</button>
+<body class="bg-black text-white p-4">
+    <div class="max-w-md mx-auto space-y-4">
+        <input type="text" id="key" placeholder="Enter Room Name" class="w-full bg-gray-800 p-3 rounded-lg">
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="start('broadcaster')" class="bg-red-600 p-3 rounded-lg font-bold">Go Live</button>
+            <button onclick="start('viewer')" class="bg-blue-600 p-3 rounded-lg font-bold">Watch</button>
         </div>
-        <div id="video-wrapper" class="mt-6 aspect-video bg-black rounded-xl overflow-hidden"></div>
-        <div id="log" class="mt-4 text-xs text-gray-500 font-mono">System Ready...</div>
+        <div id="video-wrapper" class="aspect-video bg-gray-900 rounded-lg overflow-hidden border border-gray-700"></div>
+        <div id="status" class="text-xs text-gray-400 font-mono italic">Status: Idle</div>
     </div>
 
     <script type="module">
-        // 1. IMPORT MODULAR FIREBASE
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyA5rCtILh3LmIy9BwQV8IVtHBeshlog1jI",
-            authDomain: "quickchatapp-57890.firebaseapp.com",
-            databaseURL: "https://quickchatapp-57890-default-rtdb.firebaseio.com", // MANDATORY: Ensure this is your DB URL
-            projectId: "quickchatapp-57890",
-            storageBucket: "quickchatapp-57890.firebasestorage.app",
-            messagingSenderId: "732242608209",
-            appId: "1:732242608209:web:d38008e8a4453a6d16b870"
+            databaseURL: "https://quickchatapp-57890-default-rtdb.firebaseio.com",
+            projectId: "quickchatapp-57890"
         };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const db = getDatabase(initializeApp(config));
         const client = new WebTorrent();
-        const logEl = document.getElementById('log');
+        const status = document.getElementById('status');
 
-        window.boot = async (role) => {
-            const room = document.getElementById('passcode').value || 'default';
+        window.start = async (role) => {
+            const room = document.getElementById('key').value || 'demo';
+            status.innerText = "Initializing...";
+
             if (role === 'broadcaster') {
-                const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp8'});
-                recorder.ondataavailable = (e) => {
-                    client.seed(new File([e.data], 'chunk.webm'), (torrent) => {
-                        set(ref(db, 'streams/' + room), { hash: torrent.infoHash });
-                    });
-                };
-                recorder.start(3000);
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({video: {width: 640, height: 480}, audio: true});
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+                    document.getElementById('video-wrapper').appendChild(video);
+
+                    const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp8'});
+                    recorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            client.seed(new File([e.data], 'chunk.webm'), (t) => {
+                                set(ref(db, 'live/' + room), { hash: t.infoHash });
+                                status.innerText = "Live! Peers: " + t.numPeers;
+                            });
+                        }
+                    };
+                    recorder.start(2000); // Trigger every 2s
+                } catch (e) { status.innerText = "Error: " + e.message; }
             } else {
-                onValue(ref(db, 'streams/' + room), (snapshot) => {
-                    const data = snapshot.val();
+                onValue(ref(db, 'live/' + room), (snap) => {
+                    const data = snap.val();
                     if (data?.hash) {
-                        goOffline(db); // Disconnect to save connections
-                        client.add(data.hash, (torrent) => {
-                            torrent.files[0].appendTo('#video-wrapper');
-                            setTimeout(() => goOnline(db), 3000); // Reconnect for next update
+                        status.innerText = "Syncing mesh...";
+                        client.add(data.hash, (t) => {
+                            if (document.querySelector('video')) document.querySelector('video').remove();
+                            t.files[0].appendTo('#video-wrapper');
                         });
                     }
                 });
