@@ -3,137 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireStream | Live</title>
+    <title>FireStream | Pro</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Immersive Mesh Gradient & Typography */
-        :root {
-            --md-sys-color-surface: rgba(20, 20, 24, 0.7);
-            --md-sys-color-on-surface: #F3F4F6;
-        }
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background-color: #050505;
-            color: var(--md-sys-color-on-surface);
-            overflow-x: hidden;
-            margin: 0;
+            background-color: #09090b;
+            color: #f4f4f5;
             min-height: 100vh;
         }
-        
-        /* Hyper-Complex Multi-Shape Mesh Gradient Background */
         .mesh-bg {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             background: 
-                radial-gradient(circle at 15% 50%, rgba(220, 38, 38, 0.15), transparent 40%),
-                radial-gradient(circle at 85% 30%, rgba(234, 88, 12, 0.2), transparent 45%),
-                radial-gradient(circle at 50% 80%, rgba(147, 51, 234, 0.1), transparent 50%);
-            filter: blur(60px);
-            animation: pulse-mesh 15s ease-in-out infinite alternate;
+                radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.12) 0px, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.08) 0px, transparent 50%);
         }
-
-        @keyframes pulse-mesh {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        /* Material Design 3 Glassmorphism Panel */
-        .glass-panel {
-            background: var(--md-sys-color-surface);
+        .glass-card {
+            background: rgba(18, 18, 18, 0.8);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1);
         }
-
         .ratio-landscape { aspect-ratio: 16 / 9; }
-        .ratio-portrait { aspect-ratio: 9 / 16; max-height: 75vh; }
-        
-        /* Custom Video Controls styling to keep PIP/Fullscreen on the right */
-        video {
-            border-radius: 0.75rem;
-            outline: none;
-        }
-        video::-webkit-media-controls-panel {
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-        }
+        .ratio-portrait { aspect-ratio: 9 / 16; max-height: 70vh; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center p-4 selection:bg-orange-500/30">
+<body class="flex flex-col items-center justify-center p-4 md:p-8 antialiased">
     <div class="mesh-bg"></div>
 
-    <div class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-10 transition-all duration-500 relative overflow-hidden">
+    <div class="w-full max-w-3xl glass-card rounded-3xl p-6 md:p-8 shadow-2xl relative">
         
-        <div id="toast-alert" class="absolute top-0 left-0 w-full p-3 bg-red-600 text-white text-sm font-semibold text-center transform -translate-y-full transition-transform duration-300 z-50">
-            Error message here
-        </div>
-
-        <div class="flex items-center justify-between border-b border-white/10 pb-6 mb-8">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-600 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                </div>
-                <h1 class="text-3xl font-bold tracking-tight text-white">FireStream</h1>
+        <div class="flex items-center justify-between border-b border-white/10 pb-5 mb-6">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-orange-500">
+                    <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248z" clip-rule="evenodd" />
+                </svg>
+                <h1 class="text-xl font-bold text-white tracking-tight">FireStream <span class="text-orange-500 font-medium text-sm px-2 py-0.5 bg-orange-500/10 rounded-md ml-1">v2.0</span></h1>
             </div>
-            <div id="status-chip" class="px-4 py-1.5 text-sm font-semibold bg-zinc-800/50 text-zinc-400 rounded-full border border-zinc-700/50 backdrop-blur-md transition-all">
-                System Idle
+            <div id="status-chip" class="text-xs font-semibold px-3 py-1 bg-zinc-800 text-zinc-400 rounded-full border border-zinc-700 font-mono">
+                STATUS: IDLE
             </div>
         </div>
 
-        <div id="setup-panel" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-3">
-                    <label class="text-sm font-semibold text-zinc-300">Stream Passcode</label>
-                    <input type="text" id="passcode" placeholder="Enter secure key..." class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-zinc-600">
+        <div id="error-logger" class="hidden mb-6 p-4 bg-red-950/40 border border-red-500/30 rounded-xl text-red-200 text-xs font-mono whitespace-pre-wrap overflow-x-auto"></div>
+
+        <div id="setup-panel" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Stream Secret Key</label>
+                    <input type="text" id="passcode" placeholder="e.g., my-mesh-room" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-500 transition-colors">
                 </div>
-                
-                <div class="space-y-3">
-                    <label class="text-sm font-semibold text-zinc-300">Format (Broadcaster Only)</label>
-                    <select id="ratio-select" class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 appearance-none transition-all">
-                        <option value="landscape">Cinematic (16:9)</option>
-                        <option value="portrait">Mobile Portrait (9:16)</option>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Aspect Ratio Aspect</label>
+                    <select id="ratio-select" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-500 appearance-none">
+                        <option value="landscape">Landscape (16:9 Cinema)</option>
+                        <option value="portrait">Portrait (9:16 Mobile)</option>
                     </select>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <button onclick="bootSystem('broadcaster')" class="group relative bg-white text-black font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] shadow-xl">
-                    <span class="flex items-center justify-center gap-2">Start Broadcast</span>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+                <button onclick="launchNode('broadcaster')" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-orange-600/10">
+                    Broadcast Stream
                 </button>
-                <button onclick="bootSystem('viewer')" class="bg-zinc-800/50 hover:bg-zinc-700/50 text-white font-bold py-4 px-6 rounded-2xl transition-all border border-zinc-600 hover:border-zinc-400">
-                    <span class="flex items-center justify-center gap-2">Join Stream</span>
+                <button onclick="launchNode('viewer')" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all border border-zinc-700">
+                    Join Swarm
                 </button>
             </div>
         </div>
 
-        <div id="player-panel" class="hidden flex-col items-center w-full">
-            <div id="video-frame" class="w-full relative rounded-2xl overflow-hidden bg-black/80 border border-zinc-800 shadow-2xl transition-all duration-700 flex items-center justify-center">
+        <div id="stage-panel" class="hidden flex-col items-center w-full">
+            <div id="video-canvas" class="w-full relative rounded-2xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center ratio-landscape transition-all duration-500">
                 
-                <video id="local-preview" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                <video id="hardware-preview" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
                 
-                <div id="viewer-mount" class="absolute inset-0 w-full h-full z-10"></div>
+                <div id="mesh-viewport" class="absolute inset-0 w-full h-full"></div>
 
-                <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md z-20 transition-opacity duration-300">
-                    <div class="w-12 h-12 border-4 border-zinc-600 border-t-orange-500 rounded-full animate-spin mb-6"></div>
-                    <p id="ui-state-text" class="text-lg font-medium text-white tracking-wide">Connecting to Firebase...</p>
-                    <p id="ui-sub-text" class="text-sm text-zinc-400 mt-2 font-mono">Initializing protocols</p>
+                <div id="loading-mask" class="absolute inset-0 bg-zinc-950/90 flex flex-col items-center justify-center z-20 transition-opacity duration-300">
+                    <div class="w-10 h-10 border-4 border-zinc-800 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+                    <p id="state-title" class="text-sm font-semibold tracking-wide text-white">Connecting Engine...</p>
+                    <p id="state-subtitle" class="text-xs text-zinc-500 mt-1 font-mono">Resolving system mapping</p>
                 </div>
             </div>
+            
+            <div class="w-full mt-4 flex justify-between items-center text-[11px] text-zinc-500 font-mono bg-zinc-900/40 p-3 rounded-xl border border-white/5">
+                <span id="meta-role">Identity: Scanning</span>
+                <span id="meta-peers">Swarm Nodes: 0</span>
+            </div>
         </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
+        // Production Configuration Block
         const firebaseConfig = {
             apiKey: "AIzaSyA5rCtILh3LmIy9BwQV8IVtHBeshlog1jI",
             authDomain: "quickchatapp-57890.firebaseapp.com",
@@ -144,172 +118,197 @@
             appId: "1:732242608209:web:d38008e8a4453a6d16b870"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Fail-safe initialization wrapper
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+        } catch(e) {
+            document.getElementById('error-logger').innerText = `Firebase Init Error: ${e.message}`;
+            document.getElementById('error-logger').classList.remove('hidden');
+        }
         
-        // Premium Open Trackers
-        const MESH_TRACKERS = [
-            'wss://tracker.openwebtorrent.com',
-            'wss://tracker.btorrent.xyz',
-            'wss://tracker.webtorrent.dev'
-        ];
-        
-        const client = new WebTorrent({ tracker: { announce: MESH_TRACKERS } });
+        const TRACKERS = ['wss://tracker.openwebtorrent.com', 'wss://tracker.btorrent.xyz', 'wss://tracker.webtorrent.dev'];
+        const client = new WebTorrent();
 
-        // UI Selectors
+        // UI Target Nodes
         const setupPanel = document.getElementById('setup-panel');
-        const playerPanel = document.getElementById('player-panel');
-        const videoFrame = document.getElementById('video-frame');
-        const localPreview = document.getElementById('local-preview');
-        const viewerMount = document.getElementById('viewer-mount');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const uiStateText = document.getElementById('ui-state-text');
-        const uiSubText = document.getElementById('ui-sub-text');
+        const stagePanel = document.getElementById('stage-panel');
+        const videoCanvas = document.getElementById('video-canvas');
+        const hardwarePreview = document.getElementById('hardware-preview');
+        const meshViewport = document.getElementById('mesh-viewport');
+        const loadingMask = document.getElementById('loading-mask');
+        const stateTitle = document.getElementById('state-title');
+        const stateSubtitle = document.getElementById('state-subtitle');
         const statusChip = document.getElementById('status-chip');
-        const toastAlert = document.getElementById('toast-alert');
+        const errorLogger = document.getElementById('error-logger');
 
-        function setUIState(main, sub, chipState = 'loading') {
-            uiStateText.innerText = main;
-            uiSubText.innerText = sub;
-            
-            if (chipState === 'live') {
-                statusChip.innerHTML = '<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>LIVE STREAM</span>';
-                statusChip.className = 'px-4 py-1.5 text-sm font-bold bg-red-500/10 text-red-500 rounded-full border border-red-500/20';
-            } else if (chipState === 'viewing') {
-                statusChip.innerHTML = '<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span>SYNCED</span>';
-                statusChip.className = 'px-4 py-1.5 text-sm font-bold bg-green-500/10 text-green-400 rounded-full border border-green-500/20';
+        function setStatus(title, sub, badgeStyle = 'process') {
+            stateTitle.innerText = title;
+            stateSubtitle.innerText = sub;
+            if (badgeStyle === 'live') {
+                statusChip.className = "text-xs font-bold px-3 py-1 bg-red-500/10 text-red-500 rounded-full border border-red-500/20";
+                statusChip.innerText = "🔴 LIVE BROADCAST";
+            } else if (badgeStyle === 'sync') {
+                statusChip.className = "text-xs font-bold px-3 py-1 bg-green-500/10 text-green-400 rounded-full border border-green-500/20";
+                statusChip.innerText = "🟢 SWARM SYNCED";
             }
         }
 
-        function triggerError(msg) {
-            toastAlert.innerText = msg;
-            toastAlert.classList.remove('-translate-y-full');
-            setTimeout(() => toastAlert.classList.add('-translate-y-full'), 5000);
-            
-            setupPanel.classList.remove('hidden');
-            playerPanel.classList.add('hidden');
-            statusChip.innerHTML = 'System Error';
+        // Helper function to dynamically locate a supported container type on the hardware layout
+        function getSupportedMimeType() {
+            const types = [
+                'video/webm;codecs=vp8',
+                'video/webm;codecs=vp9',
+                'video/webm',
+                'video/mp4;codecs=avc1',
+                'video/mp4'
+            ];
+            for (let type of types) {
+                if (MediaRecorder.isTypeSupported(type)) return type;
+            }
+            return '';
         }
 
-        window.bootSystem = async (role) => {
-            const rawRoom = document.getElementById('passcode').value.trim();
-            if (!rawRoom) return triggerError("Passcode is required to establish a mesh.");
-            const roomCode = rawRoom.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+        window.launchNode = async (role) => {
+            errorLogger.classList.add('hidden'); // Clear prior warnings
+            const keyInput = document.getElementById('passcode').value.trim();
+            if (!keyInput) return alert("Please assign a secret key before establishing the node.");
+            
+            const sanitizedKey = keyInput.toLowerCase().replace(/[^a-z0-9-]/g, '-');
             const ratioFormat = document.getElementById('ratio-select').value;
 
             setupPanel.classList.add('hidden');
-            playerPanel.classList.remove('hidden');
-            playerPanel.classList.add('flex');
-            
-            const roomRef = ref(db, `firestream/${roomCode}`);
+            stagePanel.classList.remove('hidden');
+            stagePanel.classList.add('flex');
+            document.getElementById('meta-role').innerText = `Identity: ${role.toUpperCase()}`;
+
+            const roomRef = ref(db, `firestream/${sanitizedKey}`);
 
             try {
                 if (role === 'broadcaster') {
-                    setUIState("Authenticating Room...", "Checking Firebase Database rules");
+                    setStatus("Validating Security Matrix...", "Reading token references from RealtimeDB...");
                     
                     const snapshot = await get(roomRef);
                     if (snapshot.exists() && snapshot.val().active) {
-                        return triggerError("Room collision! Someone is already broadcasting on this key.");
+                        throw new Error("Room Collision: This channel is currently occupied by an active broadcast node.");
                     }
 
+                    // Mutate aspect ratio styling parameters dynamically
                     if (ratioFormat === 'portrait') {
-                        videoFrame.classList.remove('ratio-landscape');
-                        videoFrame.classList.add('ratio-portrait');
-                    } else {
-                        videoFrame.classList.add('ratio-landscape');
+                        videoCanvas.classList.remove('ratio-landscape');
+                        videoCanvas.classList.add('ratio-portrait');
                     }
 
-                    setUIState("Acquiring Hardware...", "Requesting Camera & Microphone access");
                     await set(roomRef, { active: true, format: ratioFormat, hash: null, timestamp: Date.now() });
                     onDisconnect(roomRef).remove();
 
+                    setStatus("Accessing Media Hardware...", "Awaiting user camera permission allocation...");
+                    
                     const constraints = {
                         audio: true,
                         video: ratioFormat === 'portrait' 
-                            ? { width: { ideal: 720 }, height: { ideal: 1280 }, facingMode: 'user' }
-                            : { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+                            ? { width: { ideal: 480 }, height: { ideal: 854 }, facingMode: 'user' }
+                            : { width: { ideal: 854 }, height: { ideal: 480 }, facingMode: 'user' }
                     };
 
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    localPreview.srcObject = stream;
-                    localPreview.classList.remove('hidden');
-                    
-                    setUIState("Generating Live Mesh...", "Encoding VP8 chunks", "live");
-                    setTimeout(() => loadingOverlay.classList.add('opacity-0', 'pointer-events-none'), 1000);
+                    hardwarePreview.srcObject = stream;
+                    hardwarePreview.classList.remove('hidden');
 
-                    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8' });
+                    const detectedMime = getSupportedMimeType();
+                    if (!detectedMime) throw new Error("Hardware Error: The browser lacks a compatible MediaRecorder recording container format.");
+
+                    setStatus("Spawning Mesh Pipelines...", `Encoding stream chunking with wrapper: ${detectedMime}`, "live");
+                    setTimeout(() => loadingMask.classList.add('opacity-0', 'pointer-events-none'), 800);
+
+                    const recorder = new MediaRecorder(stream, { mimeType: detectedMime });
                     
                     recorder.ondataavailable = (e) => {
                         if (e.data && e.data.size > 0) {
-                            const chunkFile = new File([e.data], `live-${Date.now()}.webm`, { type: 'video/webm' });
+                            const segmentFile = new File([e.data], `seg-${Date.now()}.webm`, { type: detectedMime });
                             
-                            client.seed(chunkFile, { announce: MESH_TRACKERS }, (torrent) => {
+                            // Prevent heap memory leakage by clearing old tracking entries
+                            if(client.torrents.length > 0) {
+                                client.torrents.forEach(t => t.destroy());
+                            }
+
+                            client.seed(segmentFile, { announce: TRACKERS }, (torrent) => {
                                 set(roomRef, { 
                                     active: true, 
                                     format: ratioFormat,
                                     hash: torrent.infoHash, 
                                     timestamp: Date.now() 
                                 });
+                                document.getElementById('meta-peers').innerText = `Swarm Nodes: ${torrent.numPeers}`;
                             });
                         }
                     };
-                    recorder.start(4000);
+                    recorder.start(4000); // stable 4-second intervals
 
                 } else if (role === 'viewer') {
-                    setUIState("Scanning Database...", "Looking for active broadcaster");
-                    let lastHash = null;
+                    setStatus("Awaiting Telemetry Sync...", "Listening for valid tracking broadcast tokens...");
+                    let activeHash = null;
 
                     onValue(roomRef, (snapshot) => {
                         const data = snapshot.val();
                         
                         if (!data || !data.active) {
-                            loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                            setUIState("Stream Offline", "Waiting for broadcaster to connect...");
-                            viewerMount.innerHTML = '';
+                            loadingMask.classList.remove('opacity-0', 'pointer-events-none');
+                            setStatus("Channel Inactive", "The target stream signature is either offline or disconnected.");
+                            meshViewport.innerHTML = '';
                             return;
                         }
 
                         if (data.format === 'portrait') {
-                            videoFrame.classList.remove('ratio-landscape');
-                            videoFrame.classList.add('ratio-portrait');
+                            videoCanvas.classList.remove('ratio-landscape');
+                            videoCanvas.classList.add('ratio-portrait');
                         } else {
-                            videoFrame.classList.remove('ratio-portrait');
-                            videoFrame.classList.add('ratio-landscape');
+                            videoCanvas.classList.remove('ratio-portrait');
+                            videoCanvas.classList.add('ratio-landscape');
                         }
 
-                        if (data.hash && data.hash !== lastHash) {
-                            lastHash = data.hash;
-                            setUIState("Routing Data...", "Handshaking with P2P swarm", "viewing");
+                        if (data.hash && data.hash !== activeHash) {
+                            activeHash = data.hash;
+                            setStatus("Routing Data Array...", "Resolving cluster verification handshakes...", "sync");
                             
                             if (client.get(data.hash)) return;
 
-                            client.add(data.hash, { announce: MESH_TRACKERS }, (torrent) => {
-                                const videoFile = torrent.files.find(f => f.name.endsWith('.webm'));
-                                if (!videoFile) return;
+                            client.add(data.hash, { announce: TRACKERS }, (torrent) => {
+                                const chunkAsset = torrent.files[0];
+                                if (!chunkAsset) return;
 
-                                // Added controls: true so the user has the fullscreen/PIP button on the right
-                                videoFile.renderTo(viewerMount, { autoplay: true, muted: true, controls: true }, (err, elem) => {
+                                torrent.on('wire', () => {
+                                    document.getElementById('meta-peers').innerText = `Swarm Nodes: ${torrent.numPeers}`;
+                                });
+
+                                chunkAsset.renderTo(meshViewport, { autoplay: true, muted: true, controls: true }, (err, element) => {
                                     if (err) return;
                                     
-                                    loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
-                                    elem.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
-                                    elem.setAttribute('playsinline', 'true');
+                                    loadingMask.classList.add('opacity-0', 'pointer-events-none');
+                                    element.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
+                                    element.setAttribute('playsinline', 'true');
                                     
-                                    const oldNodes = viewerMount.querySelectorAll('video');
-                                    if (oldNodes.length > 1) oldNodes[0].remove();
+                                    // Destructive cleanup to prevent stacking background audio layers
+                                    const layeredPlayers = meshViewport.querySelectorAll('video');
+                                    if (layeredPlayers.length > 1) layeredPlayers[0].remove();
                                 });
                             });
                         }
                     });
                 }
-            } catch (error) {
-                if (error.message.includes("permission_denied")) {
-                    triggerError("Database Blocked! Fix the Firebase Rules syntax error.");
-                } else if (error.name === "NotAllowedError") {
-                    triggerError("Camera/Microphone access was blocked by your browser.");
-                } else {
-                    triggerError(error.message);
-                }
+            } catch (fatalCrash) {
+                console.error("CRITICAL RUNTIME EXCEPTION:", fatalCrash);
+                
+                // Expose raw exception parameters explicitly inside the container frame
+                errorLogger.innerText = `[RUNTIME CRASH INTERCEPTED]\nException Identity: ${fatalCrash.name}\nLog Trace: ${fatalCrash.message}\n\nSuggestions: Check your web console logs or double check that your Firebase Realtime rules don't contain a syntax error. Ensure you are loading via an encrypted context (HTTPS).`;
+                errorLogger.classList.remove('hidden');
+
+                // Return interface components cleanly
+                statusChip.className = "text-xs font-bold px-3 py-1 bg-red-500/10 text-red-500 rounded-full border border-red-500/20";
+                statusChip.innerText = "❌ PIPELINE CRASHED";
+                setupPanel.classList.remove('hidden');
+                stagePanel.classList.add('hidden');
             }
         };
     </script>
