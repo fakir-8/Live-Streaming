@@ -3,187 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuminaMesh | Zero-Cost P2P Live</title>
+    <title>LuminaMesh | Firebase v12 P2P</title>
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Hind Siliguri', sans-serif;
-            background: radial-gradient(circle at top right, #111827, #030712 80%);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-    </style>
 </head>
-<body class="text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-xl glass rounded-3xl p-6 shadow-2xl transition-all duration-300">
-        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-            <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">LuminaMesh Infinite v2</h1>
-            <span id="mesh-badge" class="px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">Mesh Standby</span>
+    <div class="w-full max-w-xl bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-2xl">
+        <h1 class="text-2xl font-bold mb-4">LuminaMesh Node</h1>
+        <input type="text" id="passcode" placeholder="Stream Key" class="w-full bg-black p-3 rounded-xl mb-4 border border-gray-700">
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="boot('broadcaster')" class="bg-indigo-600 p-3 rounded-xl">Broadcaster</button>
+            <button onclick="boot('viewer')" class="bg-gray-700 p-3 rounded-xl">Viewer</button>
         </div>
-
-        <div id="setup-screen" class="space-y-5">
-            <div>
-                <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">স্ট্রীম সিক্রেট পাসকোড</label>
-                <input type="text" id="passcode-input" placeholder="Type a unique room word..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="startSession('broadcaster')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 text-sm">Broadcaster Mode</button>
-                <button onclick="startSession('viewer')" class="bg-white/5 hover:bg-white/10 text-white font-semibold py-3 px-4 rounded-xl transition-all border border-white/10 text-sm">Viewer Mode</button>
-            </div>
-        </div>
-
-        <div id="stream-screen" class="hidden space-y-4">
-            <div id="video-wrapper" class="relative rounded-2xl overflow-hidden bg-black/60 aspect-video border border-white/10 flex items-center justify-center">
-                <video id="local-preview" autoplay muted playsinline class="w-full h-full object-cover hidden"></video>
-                <div id="loader-view" class="text-center p-4">
-                    <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                    <p class="text-xs text-gray-400 font-mono" id="loader-text">Awaiting network links...</p>
-                </div>
-                
-                <div id="cam-controls" class="absolute bottom-3 left-3 right-3 flex justify-between items-center hidden">
-                    <button onclick="flipCamera()" class="bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-3 py-2 rounded-lg backdrop-blur-md border border-white/10 transition-all">
-                        🔄 Flip Camera View
-                    </button>
-                    <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-md text-xs font-bold animate-pulse">LIVE SEEDING</span>
-                </div>
-            </div>
-            
-            <div id="terminal-log" class="text-xs text-gray-400 bg-black/40 p-3 rounded-xl border border-white/5 font-mono text-center">
-                System initializing...
-            </div>
-        </div>
+        <div id="video-wrapper" class="mt-6 aspect-video bg-black rounded-xl overflow-hidden"></div>
+        <div id="log" class="mt-4 text-xs text-gray-500 font-mono">System Ready...</div>
     </div>
 
-    <script>
-        // Setup decentralized Gun engine instance using free community infrastructure relays
-        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://relay.peer.ooo/gun']);
-        const torrentClient = new WebTorrent();
-        
-        // Premium reliable trackers optimized specifically for WebRTC multi-browser paths
-        const publicTrackers = [
-            'wss://tracker.btorrent.xyz',
-            'wss://tracker.openwebtorrent.com',
-            'wss://tracker.files.fm:7073/announce'
-        ];
+    <script type="module">
+        // 1. IMPORT MODULAR FIREBASE
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-        let roomKey = '';
-        let currentFacing = 'user'; 
-        let liveStream;
-        let chunkRecorder;
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5rCtILh3LmIy9BwQV8IVtHBeshlog1jI",
+            authDomain: "quickchatapp-57890.firebaseapp.com",
+            databaseURL: "https://quickchatapp-57890-default-rtdb.firebaseio.com", // MANDATORY: Ensure this is your DB URL
+            projectId: "quickchatapp-57890",
+            storageBucket: "quickchatapp-57890.firebasestorage.app",
+            messagingSenderId: "732242608209",
+            appId: "1:732242608209:web:d38008e8a4453a6d16b870"
+        };
 
-        const logView = document.getElementById('terminal-log');
-        const videoWrapper = document.getElementById('video-wrapper');
-        const localPreview = document.getElementById('local-preview');
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const client = new WebTorrent();
+        const logEl = document.getElementById('log');
 
-        function log(msg) { logView.innerText = msg; }
-
-        function startSession(role) {
-            roomKey = document.getElementById('passcode-input').value.trim().toLowerCase();
-            if(!roomKey) return alert("পাসকোডটি ফাকা রাখা যাবে না!");
-
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('stream-screen').classList.remove('hidden');
-            document.getElementById('mesh-badge').innerText = `Room: ${roomKey}`;
-
-            if(role === 'broadcaster') {
-                document.getElementById('cam-controls').classList.remove('hidden');
-                localPreview.classList.remove('hidden');
-                document.getElementById('loader-view').classList.add('hidden');
-                initBroadcaster();
-            } else {
-                initViewer();
-            }
-        }
-
-        // --- BROADCASTER SUB SYSTEM ---
-        async function initBroadcaster() {
-            log("Configuring internal camera system...");
-            if(liveStream) {
-                liveStream.getTracks().forEach(track => track.stop());
-            }
-
-            try {
-                liveStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: currentFacing, width: { ideal: 640 }, height: { ideal: 480 } },
-                    audio: true
-                });
-                localPreview.srcObject = liveStream;
-
-                // Slice data seamlessly inside mobile engine sandbox bounds
-                chunkRecorder = new MediaRecorder(liveStream, { mimeType: 'video/webm; codecs=vp3' });
-                chunkRecorder.ondataavailable = (event) => {
-                    if (event.data && event.data.size > 0) processChunkPacket(event.data);
+        window.boot = async (role) => {
+            const room = document.getElementById('passcode').value || 'default';
+            if (role === 'broadcaster') {
+                const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp8'});
+                recorder.ondataavailable = (e) => {
+                    client.seed(new File([e.data], 'chunk.webm'), (torrent) => {
+                        set(ref(db, 'streams/' + room), { hash: torrent.infoHash });
+                    });
                 };
-                
-                // Fire chunks every 4 seconds to give WebRTC time to establish structural connections
-                chunkRecorder.start(4000);
-                log("Streaming Active. P2P Mesh Seeding online...");
-            } catch (err) {
-                log("Camera connection failed: " + err.message);
-            }
-        }
-
-        function processChunkPacket(blob) {
-            const diskFile = new File([blob], `mesh-${Date.now()}.webm`, { type: 'video/webm' });
-            
-            torrentClient.seed(diskFile, { announce: publicTrackers }, (torrent) => {
-                console.log("New mesh fragment hash generated:", torrent.infoHash);
-                
-                // Instantly sync hash key via the decentralized global graph table database
-                gun.get('luminamesh').get(roomKey).put({ currentHash: torrent.infoHash });
-            });
-        }
-
-        function flipCamera() {
-            currentFacing = currentFacing === 'user' ? 'environment' : 'user';
-            initBroadcaster();
-        }
-
-        // --- VIEWER SUB SYSTEM ---
-        function initViewer() {
-            log("Syncing with Gun.js P2P ledger matrix...");
-            let lastRenderedHash = '';
-
-            // Listen directly for continuous hash key data updates across devices
-            gun.get('luminamesh').get(roomKey).on((data) => {
-                if (data && data.currentHash && data.currentHash !== lastRenderedHash) {
-                    lastRenderedHash = data.currentHash;
-                    log("New live segment discovered! Fetching from swarm...");
-                    mountIncomingStream(data.currentHash);
-                }
-            });
-        }
-
-        function mountIncomingStream(targetHash) {
-            // Check if we are already downloading this chunk to avoid crashes
-            if(torrentClient.get(targetHash)) return;
-
-            torrentClient.add(targetHash, { announce: publicTrackers }, (torrent) => {
-                const liveFile = torrent.files.find(f => f.name.endsWith('.webm'));
-                
-                // Kill stale video nodes to keep player performance snappy
-                const oldVideo = videoWrapper.querySelector('.webtorrent-video');
-                if(oldVideo) oldVideo.remove();
-                document.getElementById('loader-view').classList.add('hidden');
-
-                // Render the chunk seamlessly into the viewport
-                liveFile.appendTo(videoWrapper, { autoplay: true, muted: true, controls: false }, (err, elem) => {
-                    if(!err && elem) {
-                        elem.classList.add('w-full', 'h-full', 'object-cover', 'webtorrent-video');
-                        elem.setAttribute('playsinline', 'true');
-                        elem.play().catch(() => {});
-                        log("Connected. Streaming live via mesh peers.");
+                recorder.start(3000);
+            } else {
+                onValue(ref(db, 'streams/' + room), (snapshot) => {
+                    const data = snapshot.val();
+                    if (data?.hash) {
+                        goOffline(db); // Disconnect to save connections
+                        client.add(data.hash, (torrent) => {
+                            torrent.files[0].appendTo('#video-wrapper');
+                            setTimeout(() => goOnline(db), 3000); // Reconnect for next update
+                        });
                     }
                 });
-            });
-        }
+            }
+        };
     </script>
 </body>
 </html>
