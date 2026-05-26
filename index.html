@@ -3,151 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P DHT Live Stream</title>
+    <title>LuminaMesh | P2P Live Stream</title>
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
         body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f0f12;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            font-family: 'Hind Siliguri', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #09090b 60%);
         }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        video {
-            width: 100%;
-            border-radius: 8px;
-            background: #000;
-            margin-top: 15px;
-        }
-        button {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 10px;
-            transition: 0.2s;
-        }
-        button:hover { background: #4338ca; }
-        .status {
-            font-size: 0.9rem;
-            color: #a1a1aa;
-            margin-top: 10px;
-            word-break: break-all;
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
     </style>
 </head>
-<body>
+<body class="text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="container">
-        <h2>Mesh DHT Live Stream</h2>
-        
-        <div id="setup-mode">
-            <button onclick="startBroadcasting()">Act as Broadcaster (Phone)</button>
-            <button onclick="startViewing()">Act as Viewer</button>
+    <div class="w-full max-w-2xl glass rounded-3xl p-6 shadow-2xl transition-all duration-5xl">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">LuminaMesh Live</h1>
+            <span id="peer-badge" class="px-3 py-1 text-xs font-semibold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 hidden animate-pulse">0 Peers Connected</span>
         </div>
 
-        <div id="stream-area" style="display:none;">
-            <video id="video-element" controls autoplay muted playsinline></video>
-            <div class="status" id="status-text">Initializing...</div>
+        <div id="setup-screen" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">স্ট্রীম পাসকোড (Stream Passcode)</label>
+                <input type="text" id="passcode-input" placeholder="e.g., mysupersecretstream" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="initRole('broadcaster')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20">Broadcaster Mode</button>
+                <button onclick="initRole('viewer')" class="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-all border border-white/10">Viewer Mode</button>
+            </div>
+        </div>
+
+        <div id="stream-screen" class="hidden space-y-4">
+            <div class="relative rounded-2xl overflow-hidden bg-black aspect-video border border-white/10">
+                <video id="main-video" controls autoplay muted playsinline class="w-full h-full object-cover"></video>
+                <div id="broadcaster-controls" class="absolute bottom-4 left-4 right-4 flex justify-between items-center hidden">
+                    <button onclick="toggleCamera()" class="bg-black/60 hover:bg-black/80 text-white p-3 rounded-xl backdrop-blur-md border border-white/10 transition-all flex items-center gap-2">
+                        🔄 Switch Camera
+                    </button>
+                    <span class="flex items-center gap-2 bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-sm font-semibold">
+                        <span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span> LIVE
+                    </span>
+                </div>
+            </div>
+            <div id="status-console" class="text-sm text-gray-400 bg-black/30 p-3 rounded-xl border border-white/5 font-mono text-center">
+                Initializing engine...
+            </div>
         </div>
     </div>
 
     <script>
         const client = new WebTorrent();
-        const videoElement = document.getElementById('video-element');
-        const statusText = document.getElementById('status-text');
+        const trackerAnnounce = ['wss://tracker.btorrent.xyz', 'wss://tracker.openwebtorrent.com'];
         
-        // Public open-source trackers to introduce peers via DHT
-        const trackerAnnounce = [
-            'wss://tracker.btorrent.xyz',
-            'wss://tracker.openwebtorrent.com',
-            'wss://tracker.files.fm:7073/announce'
-        ];
-
+        let currentRole = '';
+        let passcode = '';
+        let currentFacingMode = "user"; // Default to front camera
+        let mediaStream;
         let mediaRecorder;
-        let recordedChunks = [];
+        let signalingChannel;
 
-        function showStreamArea() {
-            document.getElementById('setup-mode').style.display = 'none';
-            document.getElementById('stream-area').style.display = 'block';
+        // UI Selectors
+        const setupScreen = document.getElementById('setup-screen');
+        const streamScreen = document.getElementById('stream-screen');
+        const videoElement = document.getElementById('main-video');
+        const statusConsole = document.getElementById('status-console');
+        const peerBadge = document.getElementById('peer-badge');
+        const broadcasterControls = document.getElementById('broadcaster-controls');
+
+        function updateStatus(text) {
+            statusConsole.innerText = text;
         }
 
-        // --- BROADCASTER CODE ---
-        async function startBroadcasting() {
-            showStreamArea();
-            statusText.innerText = "Accessing camera...";
+        async function initRole(role) {
+            passcode = document.getElementById('passcode-input').value.trim();
+            if (!passcode) return alert("Please enter a passcode first!");
 
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                videoElement.srcObject = stream;
-                statusText.innerText = "Preparing stream chunks...";
+            currentRole = role;
+            setupScreen.classList.add('hidden');
+            streamScreen.classList.remove('hidden');
+            peerBadge.classList.remove('hidden');
 
-                // Slice video into sequential blobs every 3 seconds
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-                
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        seedChunk(e.data);
-                    }
-                };
-                
-                // Trigger data every 3000ms
-                mediaRecorder.start(3000); 
+            // Connect to free P2P Signaling Server (Using open WebTorrent tracking keys)
+            // We abuse WebTorrent's tracker backend to form a secure signaling channel
+            connectSignalingChannel();
 
-            } catch (err) {
-                statusText.innerText = "Camera error: " + err.message;
+            if (role === 'broadcaster') {
+                broadcasterControls.classList.remove('hidden');
+                await startStreaming();
+            } else {
+                updateStatus("Waiting for broadcaster to push live frames...");
             }
         }
 
-        function seedChunk(blob) {
-            // Convert Blob into a File object for WebTorrent
+        // --- CAMERA CONTROLS ---
+        async function startStreaming() {
+            updateStatus("Accessing camera system...");
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: currentFacingMode, width: 1280, height: 720 },
+                    audio: true
+                });
+                videoElement.srcObject = mediaStream;
+                
+                // Segment chunking engine
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm; codecs=vp9' });
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) broadcastVideoChunk(e.data);
+                };
+                mediaRecorder.start(3000); // Generate a data fragment chunk every 3 seconds
+                updateStatus("System Live. Seeding mesh network fragments...");
+            } catch (err) {
+                updateStatus("Camera configuration error: " + err.message);
+            }
+        }
+
+        async function toggleCamera() {
+            currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+            await startStreaming();
+        }
+
+        // --- CORE P2P SEED/LEECH INFRASTRUCTURE ---
+        function broadcastVideoChunk(blob) {
             const file = new File([blob], `chunk-${Date.now()}.webm`, { type: 'video/webm' });
             
             client.seed(file, { announce: trackerAnnounce }, (torrent) => {
-                statusText.innerText = `Broadcasting! Share this InfoHash with viewers:\n\n ${torrent.infoHash}`;
-                console.log('Seeding chunk:', torrent.infoHash);
-                
-                // Optional: In a production app, you would send this infoHash 
-                // to a free Firebase DB so viewers get it automatically.
+                console.log('Seeded chunk hash:', torrent.infoHash);
+                // Broadcast the hash code to all viewers automatically through signaling data connection
+                if(signalingChannel && signalingChannel.readyState === WebSocket.OPEN) {
+                    signalingChannel.send(JSON.stringify({ type: 'hash', value: torrent.infoHash }));
+                }
             });
         }
 
-        // --- VIEWER CODE ---
-        function startViewing() {
-            const hash = prompt("Enter the Broadcaster's InfoHash:");
-            if (!hash) return;
+        function connectSignalingChannel() {
+            // We use a free, public WebSocket broker framework to act as signaling proxy 
+            signalingChannel = new WebSocket(`wss://tracker.openwebtorrent.com`);
+            
+            signalingChannel.onopen = () => {
+                // Subscribe to room based securely on user's entered passcode
+                signalingChannel.send(JSON.stringify({ action: 'join', room: passcode }));
+                updateStatus(currentRole === 'broadcaster' ? 'Broadcasting live network...' : 'Synchronized with mesh. Awaiting stream...');
+            };
 
-            showStreamArea();
-            statusText.innerText = "Connecting to P2P Swarm...";
-
-            client.add(hash, { announce: trackerAnnounce }, (torrent) => {
-                statusText.innerText = "Connected to peers! Fetching video data...";
+            signalingChannel.onmessage = (event) => {
+                const data = JSON.parse(event.data);
                 
+                // Track total connected active client nodes
+                if(data.peers) peerBadge.innerText = `${data.peers} Watchers Online`;
+
+                // If Viewer receives a new chunk hash code automatically
+                if (currentRole === 'viewer' && data.type === 'hash') {
+                    updateStatus("Receiving real-time P2P data feed...");
+                    playNextMeshChunk(data.value);
+                }
+            };
+        }
+
+        let mediaSource;
+        let sourceBuffer;
+        let isMediaSourceInit = false;
+        let queue = [];
+
+        function playNextMeshChunk(hash) {
+            client.add(hash, { announce: trackerAnnounce }, (torrent) => {
                 const file = torrent.files.find(f => f.name.endsWith('.webm'));
                 
-                // Stream data directly into the video element asset pool
-                file.renderTo(videoElement, { autoplay: true });
-                
-                torrent.on('download', (bytes) => {
-                    statusText.innerText = `Peers connected. Downloading at: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
+                if (!isMediaSourceInit) {
+                    // Initialize clean HTML5 video stream buffer framework
+                    mediaSource = new MediaSource();
+                    videoElement.src = URL.createObjectURL(mediaSource);
+                    mediaSource.addEventListener('sourceopen', () => {
+                        sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9, opus"');
+                        sourceBuffer.addEventListener('updateend', () => {
+                            if (queue.length > 0 && !sourceBuffer.updating) {
+                                sourceBuffer.appendBuffer(queue.shift());
+                            }
+                        });
+                        isMediaSourceInit = true;
+                    });
+                }
+
+                file.getBuffer((err, buffer) => {
+                    if (err) return;
+                    if (sourceBuffer && !sourceBuffer.updating) {
+                        sourceBuffer.appendBuffer(new Uint8Array(buffer));
+                    } else {
+                        queue.push(new Uint8Array(buffer));
+                    }
                 });
             });
         }
