@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P DHT Live Stream</title>
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f12;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+            margin-top: 15px;
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            transition: 0.2s;
+        }
+        button:hover { background: #4338ca; }
+        .status {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Mesh DHT Live Stream</h2>
+        
+        <div id="setup-mode">
+            <button onclick="startBroadcasting()">Act as Broadcaster (Phone)</button>
+            <button onclick="startViewing()">Act as Viewer</button>
+        </div>
+
+        <div id="stream-area" style="display:none;">
+            <video id="video-element" controls autoplay muted playsinline></video>
+            <div class="status" id="status-text">Initializing...</div>
+        </div>
+    </div>
+
+    <script>
+        const client = new WebTorrent();
+        const videoElement = document.getElementById('video-element');
+        const statusText = document.getElementById('status-text');
+        
+        // Public open-source trackers to introduce peers via DHT
+        const trackerAnnounce = [
+            'wss://tracker.btorrent.xyz',
+            'wss://tracker.openwebtorrent.com',
+            'wss://tracker.files.fm:7073/announce'
+        ];
+
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        function showStreamArea() {
+            document.getElementById('setup-mode').style.display = 'none';
+            document.getElementById('stream-area').style.display = 'block';
+        }
+
+        // --- BROADCASTER CODE ---
+        async function startBroadcasting() {
+            showStreamArea();
+            statusText.innerText = "Accessing camera...";
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                videoElement.srcObject = stream;
+                statusText.innerText = "Preparing stream chunks...";
+
+                // Slice video into sequential blobs every 3 seconds
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        seedChunk(e.data);
+                    }
+                };
+                
+                // Trigger data every 3000ms
+                mediaRecorder.start(3000); 
+
+            } catch (err) {
+                statusText.innerText = "Camera error: " + err.message;
+            }
+        }
+
+        function seedChunk(blob) {
+            // Convert Blob into a File object for WebTorrent
+            const file = new File([blob], `chunk-${Date.now()}.webm`, { type: 'video/webm' });
+            
+            client.seed(file, { announce: trackerAnnounce }, (torrent) => {
+                statusText.innerText = `Broadcasting! Share this InfoHash with viewers:\n\n ${torrent.infoHash}`;
+                console.log('Seeding chunk:', torrent.infoHash);
+                
+                // Optional: In a production app, you would send this infoHash 
+                // to a free Firebase DB so viewers get it automatically.
+            });
+        }
+
+        // --- VIEWER CODE ---
+        function startViewing() {
+            const hash = prompt("Enter the Broadcaster's InfoHash:");
+            if (!hash) return;
+
+            showStreamArea();
+            statusText.innerText = "Connecting to P2P Swarm...";
+
+            client.add(hash, { announce: trackerAnnounce }, (torrent) => {
+                statusText.innerText = "Connected to peers! Fetching video data...";
+                
+                const file = torrent.files.find(f => f.name.endsWith('.webm'));
+                
+                // Stream data directly into the video element asset pool
+                file.renderTo(videoElement, { autoplay: true });
+                
+                torrent.on('download', (bytes) => {
+                    statusText.innerText = `Peers connected. Downloading at: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
