@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireStream | Live Pro</title>
+    <title>FireStream | Live Pro-Mesh</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
         
-        /* Hyper-Complex Multi-Shape Mesh Gradient Background */
         .mesh-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -36,43 +35,26 @@
                 radial-gradient(circle at 85% 30%, rgba(234, 88, 12, 0.2), transparent 45%),
                 radial-gradient(circle at 50% 80%, rgba(147, 51, 234, 0.1), transparent 50%);
             filter: blur(60px);
-            animation: pulse-mesh 15s ease-in-out infinite alternate;
         }
 
-        @keyframes pulse-mesh {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        /* Material Design 3 Glassmorphism Panel */
         .glass-panel {
             background: var(--md-sys-color-surface);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
         }
 
         .ratio-landscape { aspect-ratio: 16 / 9; }
         .ratio-portrait { aspect-ratio: 9 / 16; max-height: 75vh; }
-        
-        video {
-            border-radius: 0.75rem;
-            outline: none;
-        }
-        video::-webkit-media-controls-panel {
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center p-4 selection:bg-orange-500/30">
+<body class="flex flex-col items-center justify-center p-4">
     <div class="mesh-bg"></div>
 
-    <div class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-10 transition-all duration-500 relative overflow-hidden">
+    <div class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-10 relative overflow-hidden">
         
-        <div id="toast-alert" class="absolute top-0 left-0 w-full p-3 bg-red-600 text-white text-sm font-semibold text-center transform -translate-y-full transition-transform duration-300 z-50">
-            Error message here
-        </div>
+        <div id="toast-alert" class="absolute top-0 left-0 w-full p-3 bg-red-600 text-white text-sm font-semibold text-center transform -translate-y-full transition-transform duration-300 z-50"></div>
 
         <div class="flex items-center justify-between border-b border-white/10 pb-6 mb-8">
             <div class="flex items-center gap-4">
@@ -81,7 +63,7 @@
                 </div>
                 <h1 class="text-3xl font-bold tracking-tight text-white">FireStream</h1>
             </div>
-            <div id="status-chip" class="px-4 py-1.5 text-sm font-semibold bg-zinc-800/50 text-zinc-400 rounded-full border border-zinc-700/50 backdrop-blur-md transition-all">
+            <div id="status-chip" class="px-4 py-1.5 text-sm font-semibold bg-zinc-800/50 text-zinc-400 rounded-full border border-zinc-700/50 ready-state">
                 System Idle
             </div>
         </div>
@@ -90,12 +72,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-3">
                     <label class="text-sm font-semibold text-zinc-300">Stream Passcode</label>
-                    <input type="text" id="passcode" placeholder="Enter secure key..." class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-zinc-600">
+                    <input type="text" id="passcode" placeholder="Enter secure key..." class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500">
                 </div>
                 
                 <div class="space-y-3">
                     <label class="text-sm font-semibold text-zinc-300">Format</label>
-                    <select id="ratio-select" class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 appearance-none transition-all">
+                    <select id="ratio-select" class="w-full bg-black/40 border border-zinc-700 rounded-2xl px-5 py-4 text-lg text-white focus:outline-none focus:border-orange-500 appearance-none">
                         <option value="landscape">Cinematic (16:9)</option>
                         <option value="portrait">Mobile Portrait (9:16)</option>
                     </select>
@@ -103,11 +85,11 @@
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <button onclick="bootSystem('broadcaster')" class="group relative bg-white text-black font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] shadow-xl">
-                    <span class="flex items-center justify-center gap-2">Start Broadcast</span>
+                <button onclick="bootSystem('broadcaster')" class="bg-white text-black font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] shadow-xl">
+                    Start Broadcast
                 </button>
-                <button onclick="bootSystem('viewer')" class="bg-zinc-800/50 hover:bg-zinc-700/50 text-white font-bold py-4 px-6 rounded-2xl transition-all border border-zinc-600 hover:border-zinc-400">
-                    <span class="flex items-center justify-center gap-2">Join Stream</span>
+                <button onclick="bootSystem('viewer')" class="bg-zinc-800/50 hover:bg-zinc-700/50 text-white font-bold py-4 px-6 rounded-2xl transition-all border border-zinc-600">
+                    Join Stream
                 </button>
             </div>
         </div>
@@ -119,11 +101,16 @@
                 
                 <div id="viewer-mount" class="absolute inset-0 w-full h-full z-10"></div>
 
-                <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md z-20 transition-opacity duration-300">
+                <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md z-20">
                     <div class="w-12 h-12 border-4 border-zinc-600 border-t-orange-500 rounded-full animate-spin mb-6"></div>
                     <p id="ui-state-text" class="text-lg font-medium text-white tracking-wide">Connecting to Firebase...</p>
                     <p id="ui-sub-text" class="text-sm text-zinc-400 mt-2 font-mono">Initializing regional sockets</p>
                 </div>
+            </div>
+            
+            <div class="w-full mt-4 flex justify-between items-center text-[11px] text-zinc-500 font-mono bg-zinc-950 p-3 rounded-xl border border-white/5">
+                <span id="tel-swarm">Swarm Connection: Connecting</span>
+                <span id="tel-rate">Buffer Sequence: 0 bytes</span>
             </div>
         </div>
     </div>
@@ -132,7 +119,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-        // Verified Regional Configuration Block for quickchatapp-57890
         const firebaseConfig = {
             apiKey: "AIzaSyA5rCtILh3LmIy9BwQV8IVtHBeshlog1jI",
             authDomain: "quickchatapp-57890.firebaseapp.com",
@@ -146,13 +132,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
+        // Hardened, high-availability public tracker arrays
         const MESH_TRACKERS = [
             'wss://tracker.openwebtorrent.com',
             'wss://tracker.btorrent.xyz',
-            'wss://tracker.webtorrent.dev'
+            'wss://tracker.webtorrent.dev',
+            'wss://tracker.fastcast.nz'
         ];
         
-        const client = new WebTorrent({ tracker: { announce: MESH_TRACKERS } });
+        const client = new WebTorrent();
 
         // DOM Targets
         const setupPanel = document.getElementById('setup-panel');
@@ -165,6 +153,8 @@
         const uiSubText = document.getElementById('ui-sub-text');
         const statusChip = document.getElementById('status-chip');
         const toastAlert = document.getElementById('toast-alert');
+        const telSwarm = document.getElementById('tel-swarm');
+        const telRate = document.getElementById('tel-rate');
 
         function setUIState(main, sub, chipState = 'loading') {
             uiStateText.innerText = main;
@@ -182,22 +172,19 @@
         function triggerError(msg) {
             toastAlert.innerText = msg;
             toastAlert.classList.remove('-translate-y-full');
-            setTimeout(() => toastAlert.classList.add('-translate-y-full'), 5000);
-            
+            setTimeout(() => toastAlert.classList.add('-translate-y-full'), 6000);
             setupPanel.classList.remove('hidden');
             playerPanel.classList.add('hidden');
-            statusChip.innerHTML = 'System Error';
         }
 
-        // Automatic container fallback engine
         function checkCodecs() {
-            const codecs = ['video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+            const codecs = ['video/webm;codecs=vp8', 'video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
             return codecs.find(type => MediaRecorder.isTypeSupported(type)) || '';
         }
 
         window.bootSystem = async (role) => {
             const rawRoom = document.getElementById('passcode').value.trim();
-            if (!rawRoom) return triggerError("Passcode is required to establish a mesh.");
+            if (!rawRoom) return triggerError("Passcode required.");
             const roomCode = rawRoom.toLowerCase().replace(/[^a-z0-9-]/g, '-');
             const ratioFormat = document.getElementById('ratio-select').value;
 
@@ -209,21 +196,19 @@
 
             try {
                 if (role === 'broadcaster') {
-                    setUIState("Authenticating Room...", "Connecting directly to Singapore node...");
+                    setUIState("Authenticating Room...", "Checking active node states...");
                     
                     const snapshot = await get(roomRef);
                     if (snapshot.exists() && snapshot.val().active) {
-                        return triggerError("Room collision! Someone is already broadcasting on this key.");
+                        return triggerError("Room collision! Broadcast session already running.");
                     }
 
                     if (ratioFormat === 'portrait') {
                         videoFrame.classList.remove('ratio-landscape');
                         videoFrame.classList.add('ratio-portrait');
-                    } else {
-                        videoFrame.classList.add('ratio-landscape');
                     }
 
-                    setUIState("Acquiring Hardware...", "Requesting Camera & Microphone access");
+                    setUIState("Acquiring Hardware...", "Allocating input matrices...");
                     await set(roomRef, { active: true, format: ratioFormat, hash: null, timestamp: Date.now() });
                     onDisconnect(roomRef).remove();
 
@@ -239,19 +224,18 @@
                     localPreview.classList.remove('hidden');
                     
                     const targetMime = checkCodecs();
-                    if(!targetMime) throw new Error("No usable MediaRecorder codecs found on this device.");
-
-                    setUIState("Generating Live Mesh...", `Encoding via ${targetMime}`, "live");
-                    setTimeout(() => loadingOverlay.classList.add('opacity-0', 'pointer-events-none'), 1000);
+                    setUIState("Seeding Swarm Pipeline...", "Emitting chunk matrices...", "live");
+                    loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
 
                     const recorder = new MediaRecorder(stream, { mimeType: targetMime });
                     
-                    recorder.ondataavailable = (e) => {
+                    recorder.ondataavailable = async (e) => {
                         if (e.data && e.data.size > 0) {
                             const chunkFile = new File([e.data], `live-${Date.now()}.webm`, { type: targetMime });
                             
+                            // Aggressive memory leak prevention
                             if (client.torrents.length > 0) {
-                                client.torrents.forEach(t => t.destroy());
+                                client.torrents.forEach(t => client.remove(t.infoHash));
                             }
 
                             client.seed(chunkFile, { announce: MESH_TRACKERS }, (torrent) => {
@@ -261,13 +245,15 @@
                                     hash: torrent.infoHash, 
                                     timestamp: Date.now() 
                                 });
+                                telSwarm.innerText = `Active Peers: ${torrent.numPeers}`;
+                                telRate.innerText = `Seeding Block: ${e.data.size} bytes`;
                             });
                         }
                     };
-                    recorder.start(3500);
+                    recorder.start(4000); // Expanded chunk cycle for stable replication handshakes
 
                 } else if (role === 'viewer') {
-                    setUIState("Scanning Database...", "Listening to Singapore cluster updates...");
+                    setUIState("Intercepting Singularity...", "Polling database signatures...");
                     let lastHash = null;
 
                     onValue(roomRef, (snapshot) => {
@@ -275,7 +261,7 @@
                         
                         if (!data || !data.active) {
                             loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                            setUIState("Stream Offline", "Waiting for broadcaster to connect...");
+                            setUIState("Stream Offline", "Awaiting active broadcast initialization...");
                             viewerMount.innerHTML = '';
                             return;
                         }
@@ -290,23 +276,39 @@
 
                         if (data.hash && data.hash !== lastHash) {
                             lastHash = data.hash;
-                            setUIState("Routing Data...", "Handshaking with P2P swarm", "viewing");
+                            setUIState("Routing Data Matrix...", "Handshaking with P2P swarm...", "viewing");
                             
+                            // Garbage cleanup matching the broadcaster's lifecycle
+                            if (client.torrents.length > 1) {
+                                client.torrents.slice(0, -1).forEach(t => client.remove(t.infoHash));
+                            }
+
                             if (client.get(data.hash)) return;
 
                             client.add(data.hash, { announce: MESH_TRACKERS }, (torrent) => {
+                                telSwarm.innerText = `Connected Swarm Nodes: ${torrent.numPeers}`;
+                                
+                                torrent.on('download', (bytes) => {
+                                    telRate.innerText = `Buffered: ${torrent.downloaded} / ${torrent.length} bytes`;
+                                    // Direct hot-bypass: if we downloaded metadata, push element painting
+                                    if(torrent.downloaded > (torrent.length * 0.3)) {
+                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                                    }
+                                });
+
                                 const videoFile = torrent.files[0];
                                 if (!videoFile) return;
 
+                                // Proactive fallback renderer injection
                                 videoFile.renderTo(viewerMount, { autoplay: true, muted: true, controls: true }, (err, elem) => {
-                                    if (err) return;
-                                    
-                                    loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
-                                    elem.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
-                                    elem.setAttribute('playsinline', 'true');
-                                    
-                                    const oldNodes = viewerMount.querySelectorAll('video');
-                                    if (oldNodes.length > 1) oldNodes[0].remove();
+                                    if (!err && elem) {
+                                        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                                        elem.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
+                                        elem.setAttribute('playsinline', 'true');
+                                        
+                                        const oldNodes = viewerMount.querySelectorAll('video');
+                                        if (oldNodes.length > 1) oldNodes[0].remove();
+                                    }
                                 });
                             });
                         }
